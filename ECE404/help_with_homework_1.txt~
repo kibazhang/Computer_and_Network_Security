@@ -1,0 +1,61 @@
+
+Hello:
+
+I have received email messages from some of you asking how
+exactly to mount a brute force attack on the
+encryption/decryption carried out by EcryptForFun.py and
+DecryptForFun.py.
+
+The easiest thing for you to do would be to modify the
+decryption script itself and subject the decryption logic in
+that script to all possible keys between 0 and 2^16-1.
+
+Another option is to write a more system-level script that
+invokes the script file DecryptForFun.py on output5.txt with
+different possible keys.  The challenge here is dealing with
+the problem of the shell mistaking some of the key bytes as
+shell-interpretable metacharacters.
+
+Just to give you a flavor of what I mean by a more
+system-level script for mounting a brute-force attack, shown
+below is a script that is based on the assumption that the
+key consists of two LOWERCASE PRINTABLE characters:
+
+
+  ==================================================================
+  #!/usr/bin/env python
+    
+  ###  BruteForceAttack.py
+  ###  Avi Kak  (kak@purdue.edu)
+  ###  January 22, 2014
+    
+  import os, sys
+    
+  keys = [chr(i) + chr(j) for i in range(97,123) for j in range(97,123)]
+  for key in keys:
+      print "key is: ", key
+      arg = 'echo ' +  key + r' | DecryptForFun.py output5.txt recover5.txt 2>&1 1>/dev/null'
+      os.system(arg)
+      match = os.system("grep -i 'mark twain' recover5.txt > junk.txt")
+      try:
+          size = os.path.getsize("junk.txt")
+      except: pass
+      if size > 0:
+          sys.exit(0) 
+  ===================================================================
+
+If you execute the script, it will halt exactly when it
+discovers that the decrypted output contains the string
+"Mark Twain".  Give it a try!
+
+Obviously, the script shown above is not a complete solution
+to the homework problem because it only searches over a
+subset of all possible keys whose integer values are between
+0 and 2^16-1.  If you extend the script to include all
+possible keys, you will quickly run into the problems
+created by key bytes that are shell interpretable. So you
+will have to figure out how to surmount that challenge.
+
+Avi Kak
+
+
